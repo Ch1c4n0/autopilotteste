@@ -1,9 +1,3 @@
-# Função para obter perfis de implantação do Windows Autopilot
-function Get-AutopilotProfiles {
-    $profiles = Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile
-    return $profiles
-}
-
 # Função para obter informações do Windows Autopilot com GroupTag
 function Get-WindowsAutopilotInfoWithGroupTag($groupTag) {
     Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
@@ -33,33 +27,31 @@ Add-Type -AssemblyName System.Drawing
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Autopilot - Marcelo Goncalves v1.0 - Intune Lovers!"
 $form.Size = New-Object System.Drawing.Size(400, 400)
-$form.BackColor = [System.Drawing.Color]::Black
 
-# Função para centralizar os botões
-function CenterControl($control, $form) {
-    $control.Location = New-Object System.Drawing.Point(($form.ClientSize.Width - $control.Width) / 2, $control.Location.Y)
-}
+# Adicionar mensagem centralizada
+$labelTitle = New-Object System.Windows.Forms.Label
+$labelTitle.Text = "Windows Autopilot"
+$labelTitle.Font = New-Object System.Drawing.Font("Arial", 32)
+$labelTitle.AutoSize = $true
+$labelTitle.Location = New-Object System.Drawing.Point(($form.ClientSize.Width - $labelTitle.Width) / 2, 20)
+$form.Controls.Add($labelTitle)
 
 $buttonAutopilotGroupTag = New-Object System.Windows.Forms.Button
 $buttonAutopilotGroupTag.Text = "Autopilot Online With Group Tag"
+$buttonAutopilotGroupTag.Location = New-Object System.Drawing.Point(100, 120)
 $buttonAutopilotGroupTag.Size = New-Object System.Drawing.Size(200, 30)
-$buttonAutopilotGroupTag.Location = New-Object System.Drawing.Point(0, 50)
 $form.Controls.Add($buttonAutopilotGroupTag)
-CenterControl $buttonAutopilotGroupTag $form
 
 $buttonAutopilotCSV = New-Object System.Windows.Forms.Button
 $buttonAutopilotCSV.Text = "Windows Autopilot CSV"
+$buttonAutopilotCSV.Location = New-Object System.Drawing.Point(100, 170)
 $buttonAutopilotCSV.Size = New-Object System.Drawing.Size(200, 30)
-$buttonAutopilotCSV.Location = New-Object System.Drawing.Point(0, 100)
-$buttonAutopilotCSV.Enabled = $false
 $form.Controls.Add($buttonAutopilotCSV)
-CenterControl $buttonAutopilotCSV $form
 
 $labelStatus = New-Object System.Windows.Forms.Label
-$labelStatus.Location = New-Object System.Drawing.Point(0, 20)
+$labelStatus.Location = New-Object System.Drawing.Point(150, 50)
 $labelStatus.Size = New-Object System.Drawing.Size(100, 20)
 $form.Controls.Add($labelStatus)
-CenterControl $labelStatus $form
 
 # Evento de clique do botão Autopilot Online With Group Tag
 $buttonAutopilotGroupTag.Add_Click({

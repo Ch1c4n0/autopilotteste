@@ -29,7 +29,7 @@ function Get-WindowsAutopilotInfoCSV {
 
 # Função para enviar arquivo para SharePoint
 function Upload-ToSharePoint($filePath, $siteUrl, $folderPath, $username, $password) {
-    Install-Module -Name SharePointPnPPowerShellOnline -Force -AllowClobber
+    Install-Module -Name PnP.PowerShell -Force -AllowClobber
     $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
     $credentials = New-Object System.Management.Automation.PSCredential ($username, $securePassword)
     Connect-PnPOnline -Url $siteUrl -Credentials $credentials
@@ -42,7 +42,7 @@ Add-Type -AssemblyName System.Drawing
 
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Autopilot"
-$form.Size = New-Object System.Drawing.Size(400, 450)
+$form.Size = New-Object System.Drawing.Size(400, 500)
 
 $buttonInstallGraph = New-Object System.Windows.Forms.Button
 $buttonInstallGraph.Text = "Install Microsoft Graph"
@@ -51,41 +51,53 @@ $buttonInstallGraph.Size = New-Object System.Drawing.Size(200, 30)
 $buttonInstallGraph.BackColor = [System.Drawing.Color]::Yellow
 $form.Controls.Add($buttonInstallGraph)
 
+$buttonInstallPnP = New-Object System.Windows.Forms.Button
+$buttonInstallPnP.Text = "PNP Sharepoint"
+$buttonInstallPnP.Location = New-Object System.Drawing.Point(100, 70)
+$buttonInstallPnP.Size = New-Object System.Drawing.Size(200, 30)
+$buttonInstallPnP.BackColor = [System.Drawing.Color]::Purple
+$form.Controls.Add($buttonInstallPnP)
+
 $buttonLogin = New-Object System.Windows.Forms.Button
 $buttonLogin.Text = "Login"
-$buttonLogin.Location = New-Object System.Drawing.Point(150, 70)
+$buttonLogin.Location = New-Object System.Drawing.Point(150, 120)
 $buttonLogin.Size = New-Object System.Drawing.Size(100, 30)
 $form.Controls.Add($buttonLogin)
 
 $buttonAutopilotGroupTag = New-Object System.Windows.Forms.Button
 $buttonAutopilotGroupTag.Text = "Autopilot Online With Group Tag"
-$buttonAutopilotGroupTag.Location = New-Object System.Drawing.Point(100, 120)
+$buttonAutopilotGroupTag.Location = New-Object System.Drawing.Point(100, 170)
 $buttonAutopilotGroupTag.Size = New-Object System.Drawing.Size(200, 30)
 $buttonAutopilotGroupTag.Enabled = $false
 $form.Controls.Add($buttonAutopilotGroupTag)
 
 $buttonAutopilotCSV = New-Object System.Windows.Forms.Button
 $buttonAutopilotCSV.Text = "Windows Autopilot CSV"
-$buttonAutopilotCSV.Location = New-Object System.Drawing.Point(100, 170)
+$buttonAutopilotCSV.Location = New-Object System.Drawing.Point(100, 220)
 $buttonAutopilotCSV.Size = New-Object System.Drawing.Size(200, 30)
 $buttonAutopilotCSV.Enabled = $false
 $form.Controls.Add($buttonAutopilotCSV)
 
 $buttonAutopilotSharePoint = New-Object System.Windows.Forms.Button
 $buttonAutopilotSharePoint.Text = "Windows Autopilot - SharePoint"
-$buttonAutopilotSharePoint.Location = New-Object System.Drawing.Point(100, 220)
+$buttonAutopilotSharePoint.Location = New-Object System.Drawing.Point(100, 270)
 $buttonAutopilotSharePoint.Size = New-Object System.Drawing.Size(200, 30)
 $buttonAutopilotSharePoint.Enabled = $false
 $form.Controls.Add($buttonAutopilotSharePoint)
 
 $labelStatus = New-Object System.Windows.Forms.Label
-$labelStatus.Location = New-Object System.Drawing.Point(150, 50)
+$labelStatus.Location = New-Object System.Drawing.Point(150, 150)
 $labelStatus.Size = New-Object System.Drawing.Size(100, 20)
 $form.Controls.Add($labelStatus)
 
 # Evento de clique do botão Install Microsoft Graph
 $buttonInstallGraph.Add_Click({
     Start-Process powershell -ArgumentList "Install-Module Microsoft.Graph -AllowClobber -Force" -NoNewWindow
+})
+
+# Evento de clique do botão PNP Sharepoint
+$buttonInstallPnP.Add_Click({
+    Start-Process powershell -ArgumentList "Install-Module -Name PnP.PowerShell -Force" -NoNewWindow
 })
 
 # Evento de clique do botão de login
@@ -148,7 +160,7 @@ $buttonAutopilotSharePoint.Add_Click({
 
     $inputForm = New-Object System.Windows.Forms.Form
     $inputForm.Text = "Enter SharePoint Details"
-    $inputForm.Size = New-Object System.Drawing.Size(300, 250)
+    $inputForm.Size = New-Object System.Drawing.Size(300, 300)
 
     $labelUrl = New-Object System.Windows.Forms.Label
     $labelUrl.Text = "SharePoint URL:"

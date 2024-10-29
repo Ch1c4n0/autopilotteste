@@ -28,10 +28,12 @@ function Get-WindowsAutopilotInfoCSV {
 }
 
 # Função para enviar arquivo para SharePoint
-function Upload-ToSharePoint($filePath, $siteUrl) {
-    # Aqui você deve adicionar o código para enviar o arquivo para o SharePoint
-    # Exemplo fictício de como enviar o arquivo
-    Write-Host "Uploading $filePath to $siteUrl"
+function Upload-ToSharePoint($filePath, $siteUrl, $username, $password) {
+    Install-Module -Name SharePointPnPPowerShellOnline -Force -AllowClobber
+    $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+    $credentials = New-Object System.Management.Automation.PSCredential ($username, $securePassword)
+    Connect-PnPOnline -Url $siteUrl -Credentials $credentials
+    Add-PnPFile -Path $filePath -Folder "Shared Documents"
 }
 
 # Criar a interface gráfica
@@ -146,29 +148,54 @@ $buttonAutopilotSharePoint.Add_Click({
 
     $inputForm = New-Object System.Windows.Forms.Form
     $inputForm.Text = "Enter SharePoint URL"
-    $inputForm.Size = New-Object System.Drawing.Size(300, 150)
+    $inputForm.Size = New-Object System.Drawing.Size(300, 200)
 
-    $label = New-Object System.Windows.Forms.Label
-    $label.Text = "SharePoint URL:"
-    $label.Location = New-Object System.Drawing.Point(10, 20)
-    $inputForm.Controls.Add($label)
+    $labelUrl = New-Object System.Windows.Forms.Label
+    $labelUrl.Text = "SharePoint URL:"
+    $labelUrl.Location = New-Object System.Drawing.Point(10, 20)
+    $inputForm.Controls.Add($labelUrl)
 
-    $textBox = New-Object System.Windows.Forms.TextBox
-    $textBox.Location = New-Object System.Drawing.Point(100, 20)
-    $textBox.Size = New-Object System.Drawing.Size(180, 20)
-    $textBox.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
-    $inputForm.Controls.Add($textBox)
+    $textBoxUrl = New-Object System.Windows.Forms.TextBox
+    $textBoxUrl.Location = New-Object System.Drawing.Point(100, 20)
+    $textBoxUrl.Size = New-Object System.Drawing.Size(180, 20)
+    $textBoxUrl.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    $inputForm.Controls.Add($textBoxUrl)
+
+    $labelUsername = New-Object System.Windows.Forms.Label
+    $labelUsername.Text = "Username:"
+    $labelUsername.Location = New-Object System.Drawing.Point(10, 60)
+    $inputForm.Controls.Add($labelUsername)
+
+    $textBoxUsername = New-Object System.Windows.Forms.TextBox
+    $textBoxUsername.Location = New-Object System.Drawing.Point(100, 60)
+    $textBoxUsername.Size = New-Object System.Drawing.Size(180, 20)
+    $textBoxUsername.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    $inputForm.Controls.Add($textBoxUsername)
+
+    $labelPassword = New-Object System.Windows.Forms.Label
+    $labelPassword.Text = "Password:"
+    $labelPassword.Location = New-Object System.Drawing.Point(10, 100)
+    $inputForm.Controls.Add($labelPassword)
+
+    $textBoxPassword = New-Object System.Windows.Forms.TextBox
+    $textBoxPassword.Location = New-Object System.Drawing.Point(100, 100)
+    $textBoxPassword.Size = New-Object System.Drawing.Size(180, 20)
+    $textBoxPassword.PasswordChar = '*'
+    $textBoxPassword.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    $inputForm.Controls.Add($textBoxPassword)
 
     $buttonOK = New-Object System.Windows.Forms.Button
     $buttonOK.Text = "OK"
-    $buttonOK.Location = New-Object System.Drawing.Point(100, 60)
+    $buttonOK.Location = New-Object System.Drawing.Point(100, 140)
     $buttonOK.Size = New-Object System.Drawing.Size(75, 30)
     $inputForm.Controls.Add($buttonOK)
 
     $buttonOK.Add_Click({
-        $siteUrl = $textBox.Text
+        $siteUrl = $textBoxUrl.Text
+        $username = $textBoxUsername.Text
+        $password = $textBoxPassword.Text
         $inputForm.Close()
-        Upload-ToSharePoint $outputFile $siteUrl
+        Upload-ToSharePoint $outputFile $siteUrl $username $password
         [System.Windows.Forms.MessageBox]::Show("CSV file uploaded to $siteUrl")
     })
 

@@ -31,10 +31,10 @@ $form.Size = New-Object System.Drawing.Size(400, 400)
 # Adicionar mensagem centralizada
 $labelTitle = New-Object System.Windows.Forms.Label
 $labelTitle.Text = "Windows Autopilot"
-$labelTitle.Font = New-Object System.Drawing.Font("Arial", 32)
+$labelTitle.Font = New-Object System.Drawing.Font("Arial", 16)
 $labelTitle.AutoSize = $true
-$labelTitle.Location = New-Object System.Drawing.Point(($form.ClientSize.Width - $labelTitle.Width) / 2, 20)
 $form.Controls.Add($labelTitle)
+$labelTitle.Location = New-Object System.Drawing.Point(($form.ClientSize.Width - $labelTitle.PreferredWidth) / 2, 20)
 
 $buttonAutopilotGroupTag = New-Object System.Windows.Forms.Button
 $buttonAutopilotGroupTag.Text = "Autopilot Online With Group Tag"

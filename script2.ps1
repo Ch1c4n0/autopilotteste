@@ -27,13 +27,21 @@ function Get-WindowsAutopilotInfoCSV {
     return $outputFile
 }
 
-# Função para enviar arquivo para SharePoint
-function Upload-ToSharePoint($filePath, $siteUrl, $folderPath, $username, $password) {
-    Install-Module -Name PnP.PowerShell -Force -AllowClobber
-    $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
-    $credentials = New-Object System.Management.Automation.PSCredential ($username, $securePassword)
-    Connect-PnPOnline -Url $siteUrl -Credentials $credentials
-    Add-PnPFile -Path $filePath -Folder $folderPath
+# Função para enviar arquivo por e-mail
+function Send-EmailWithAttachment($filePath, $smtpServer, $smtpPort, $smtpUser, $smtpPassword, $to, $subject, $body) {
+    $securePassword = ConvertTo-SecureString $smtpPassword -AsPlainText -Force
+    $credentials = New-Object System.Management.Automation.PSCredential ($smtpUser, $securePassword)
+    $message = New-Object System.Net.Mail.MailMessage
+    $message.From = $smtpUser
+    $message.To.Add($to)
+    $message.Subject = $subject
+    $message.Body = $body
+    $attachment = New-Object System.Net.Mail.Attachment($filePath)
+    $message.Attachments.Add($attachment)
+    $smtp = New-Object System.Net.Mail.SmtpClient($smtpServer, $smtpPort)
+    $smtp.EnableSsl = $true
+    $smtp.Credentials = $credentials
+    $smtp.Send($message)
 }
 
 # Criar a interface gráfica
@@ -78,12 +86,12 @@ $buttonAutopilotCSV.Size = New-Object System.Drawing.Size(200, 30)
 $buttonAutopilotCSV.Enabled = $false
 $form.Controls.Add($buttonAutopilotCSV)
 
-$buttonAutopilotSharePoint = New-Object System.Windows.Forms.Button
-$buttonAutopilotSharePoint.Text = "Windows Autopilot - SharePoint"
-$buttonAutopilotSharePoint.Location = New-Object System.Drawing.Point(100, 270)
-$buttonAutopilotSharePoint.Size = New-Object System.Drawing.Size(200, 30)
-$buttonAutopilotSharePoint.Enabled = $false
-$form.Controls.Add($buttonAutopilotSharePoint)
+$buttonAutopilotEmail = New-Object System.Windows.Forms.Button
+$buttonAutopilotEmail.Text = "Windows Autopilot E-mail"
+$buttonAutopilotEmail.Location = New-Object System.Drawing.Point(100, 270)
+$buttonAutopilotEmail.Size = New-Object System.Drawing.Size(200, 30)
+$buttonAutopilotEmail.Enabled = $false
+$form.Controls.Add($buttonAutopilotEmail)
 
 $labelStatus = New-Object System.Windows.Forms.Label
 $labelStatus.Location = New-Object System.Drawing.Point(150, 150)
@@ -106,7 +114,7 @@ $buttonLogin.Add_Click({
         Connect-MgGraphWithScopes
         $buttonAutopilotGroupTag.Enabled = $true
         $buttonAutopilotCSV.Enabled = $true
-        $buttonAutopilotSharePoint.Enabled = $true
+        $buttonAutopilotEmail.Enabled = $true
         $labelStatus.Text = "SUCCESS"
         $labelStatus.ForeColor = [System.Drawing.Color]::Green
     } catch {
@@ -154,35 +162,35 @@ $buttonAutopilotCSV.Add_Click({
     [System.Windows.Forms.MessageBox]::Show("CSV file created at $outputFile")
 })
 
-# Evento de clique do botão Windows Autopilot - SharePoint
-$buttonAutopilotSharePoint.Add_Click({
+# Evento de clique do botão Windows Autopilot E-mail
+$buttonAutopilotEmail.Add_Click({
     $outputFile = Get-WindowsAutopilotInfoCSV
 
     $inputForm = New-Object System.Windows.Forms.Form
-    $inputForm.Text = "Enter SharePoint Details"
-    $inputForm.Size = New-Object System.Drawing.Size(300, 300)
+    $inputForm.Text = "Enter E-mail Details"
+    $inputForm.Size = New-Object System.Drawing.Size(300, 350)
 
-    $labelUrl = New-Object System.Windows.Forms.Label
-    $labelUrl.Text = "SharePoint URL:"
-    $labelUrl.Location = New-Object System.Drawing.Point(10, 20)
-    $inputForm.Controls.Add($labelUrl)
+    $labelSmtp = New-Object System.Windows.Forms.Label
+    $labelSmtp.Text = "SMTP Server:"
+    $labelSmtp.Location = New-Object System.Drawing.Point(10, 20)
+    $inputForm.Controls.Add($labelSmtp)
 
-    $textBoxUrl = New-Object System.Windows.Forms.TextBox
-    $textBoxUrl.Location = New-Object System.Drawing.Point(100, 20)
-    $textBoxUrl.Size = New-Object System.Drawing.Size(180, 20)
-    $textBoxUrl.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
-    $inputForm.Controls.Add($textBoxUrl)
+    $textBoxSmtp = New-Object System.Windows.Forms.TextBox
+    $textBoxSmtp.Location = New-Object System.Drawing.Point(100, 20)
+    $textBoxSmtp.Size = New-Object System.Drawing.Size(180, 20)
+    $textBoxSmtp.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    $inputForm.Controls.Add($textBoxSmtp)
 
-    $labelFolder = New-Object System.Windows.Forms.Label
-    $labelFolder.Text = "Folder Path:"
-    $labelFolder.Location = New-Object System.Drawing.Point(10, 60)
-    $inputForm.Controls.Add($labelFolder)
+    $labelPort = New-Object System.Windows.Forms.Label
+    $labelPort.Text = "SMTP Port:"
+    $labelPort.Location = New-Object System.Drawing.Point(10, 60)
+    $inputForm.Controls.Add($labelPort)
 
-    $textBoxFolder = New-Object System.Windows.Forms.TextBox
-    $textBoxFolder.Location = New-Object System.Drawing.Point(100, 60)
-    $textBoxFolder.Size = New-Object System.Drawing.Size(180, 20)
-    $textBoxFolder.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
-    $inputForm.Controls.Add($textBoxFolder)
+    $textBoxPort = New-Object System.Windows.Forms.TextBox
+    $textBoxPort.Location = New-Object System.Drawing.Point(100, 60)
+    $textBoxPort.Size = New-Object System.Drawing.Size(180, 20)
+    $textBoxPort.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    $inputForm.Controls.Add($textBoxPort)
 
     $labelUsername = New-Object System.Windows.Forms.Label
     $labelUsername.Text = "Username:"
@@ -207,20 +215,57 @@ $buttonAutopilotSharePoint.Add_Click({
     $textBoxPassword.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
     $inputForm.Controls.Add($textBoxPassword)
 
+    $labelTo = New-Object System.Windows.Forms.Label
+    $labelTo.Text = "To:"
+    $labelTo.Location = New-Object System.Drawing.Point(10, 180)
+    $inputForm.Controls.Add($labelTo)
+
+    $textBoxTo = New-Object System.Windows.Forms.TextBox
+    $textBoxTo.Location = New-Object System.Drawing.Point(100, 180)
+    $textBoxTo.Size = New-Object System.Drawing.Size(180, 20)
+    $textBoxTo.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    $inputForm.Controls.Add($textBoxTo)
+
+    $labelSubject = New-Object System.Windows.Forms.Label
+    $labelSubject.Text = "Subject:"
+    $labelSubject.Location = New-Object System.Drawing.Point(10, 220)
+    $inputForm.Controls.Add($labelSubject)
+
+    $textBoxSubject = New-Object System.Windows.Forms.TextBox
+    $textBoxSubject.Location = New-Object System.Drawing.Point(100, 220)
+    $textBoxSubject.Size = New-Object System.Drawing.Size(180, 20)
+    $textBoxSubject.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    $inputForm.Controls.Add($textBoxSubject)
+
+    $labelBody = New-Object System.Windows.Forms.Label
+    $labelBody.Text = "Body:"
+    $labelBody.Location = New-Object System.Windows.Forms.Label
+    $labelBody.Location = New-Object System.Drawing.Point(10, 260)
+    $inputForm.Controls.Add($labelBody)
+
+    $textBoxBody = New-Object System.Windows.Forms.TextBox
+    $textBoxBody.Location = New-Object System.Drawing.Point(100, 260)
+    $textBoxBody.Size = New-Object System.Drawing.Size(180, 20)
+    $textBoxBody.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    $inputForm.Controls.Add($textBoxBody)
+
     $buttonOK = New-Object System.Windows.Forms.Button
     $buttonOK.Text = "OK"
-    $buttonOK.Location = New-Object System.Drawing.Point(100, 180)
+    $buttonOK.Location = New-Object System.Drawing.Point(100, 300)
     $buttonOK.Size = New-Object System.Drawing.Size(75, 30)
     $inputForm.Controls.Add($buttonOK)
 
     $buttonOK.Add_Click({
-        $siteUrl = $textBoxUrl.Text
-        $folderPath = $textBoxFolder.Text
+        $smtpServer = $textBoxSmtp.Text
+        $smtpPort = $textBoxPort.Text
         $username = $textBoxUsername.Text
         $password = $textBoxPassword.Text
+        $to = $textBoxTo.Text
+        $subject = $textBoxSubject.Text
+        $body = $textBoxBody.Text
         $inputForm.Close()
-        Upload-ToSharePoint $outputFile $siteUrl $folderPath $username $password
-        [System.Windows.Forms.MessageBox]::Show("CSV file uploaded to $siteUrl/$folderPath")
+        Send-EmailWithAttachment $outputFile $smtpServer $smtpPort $username $password $to $subject $body
+        [System.Windows.Forms.MessageBox]::Show("CSV file sent to $to")
     })
 
     $inputForm.ShowDialog()

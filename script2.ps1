@@ -27,6 +27,13 @@ function Get-WindowsAutopilotInfoCSV {
     return $outputFile
 }
 
+# Função para enviar arquivo para SharePoint
+function Upload-ToSharePoint($filePath, $siteUrl) {
+    # Aqui você deve adicionar o código para enviar o arquivo para o SharePoint
+    # Exemplo fictício de como enviar o arquivo
+    Write-Host "Uploading $filePath to $siteUrl"
+}
+
 # Criar a interface gráfica
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -62,12 +69,12 @@ $buttonAutopilotCSV.Size = New-Object System.Drawing.Size(200, 30)
 $buttonAutopilotCSV.Enabled = $false
 $form.Controls.Add($buttonAutopilotCSV)
 
-$textBoxProfiles = New-Object System.Windows.Forms.TextBox
-$textBoxProfiles.Multiline = $true
-$textBoxProfiles.ScrollBars = [System.Windows.Forms.ScrollBars]::Vertical
-$textBoxProfiles.Location = New-Object System.Drawing.Point(50, 220)
-$textBoxProfiles.Size = New-Object System.Drawing.Size(300, 100)
-$form.Controls.Add($textBoxProfiles)
+$buttonAutopilotSharePoint = New-Object System.Windows.Forms.Button
+$buttonAutopilotSharePoint.Text = "Windows Autopilot - SharePoint"
+$buttonAutopilotSharePoint.Location = New-Object System.Drawing.Point(100, 220)
+$buttonAutopilotSharePoint.Size = New-Object System.Drawing.Size(200, 30)
+$buttonAutopilotSharePoint.Enabled = $false
+$form.Controls.Add($buttonAutopilotSharePoint)
 
 $labelStatus = New-Object System.Windows.Forms.Label
 $labelStatus.Location = New-Object System.Drawing.Point(150, 50)
@@ -85,6 +92,7 @@ $buttonLogin.Add_Click({
         Connect-MgGraphWithScopes
         $buttonAutopilotGroupTag.Enabled = $true
         $buttonAutopilotCSV.Enabled = $true
+        $buttonAutopilotSharePoint.Enabled = $true
         $labelStatus.Text = "SUCCESS"
         $labelStatus.ForeColor = [System.Drawing.Color]::Green
     } catch {
@@ -130,6 +138,41 @@ $buttonAutopilotGroupTag.Add_Click({
 $buttonAutopilotCSV.Add_Click({
     $outputFile = Get-WindowsAutopilotInfoCSV
     [System.Windows.Forms.MessageBox]::Show("CSV file created at $outputFile")
+})
+
+# Evento de clique do botão Windows Autopilot - SharePoint
+$buttonAutopilotSharePoint.Add_Click({
+    $outputFile = Get-WindowsAutopilotInfoCSV
+
+    $inputForm = New-Object System.Windows.Forms.Form
+    $inputForm.Text = "Enter SharePoint URL"
+    $inputForm.Size = New-Object System.Drawing.Size(300, 150)
+
+    $label = New-Object System.Windows.Forms.Label
+    $label.Text = "SharePoint URL:"
+    $label.Location = New-Object System.Drawing.Point(10, 20)
+    $inputForm.Controls.Add($label)
+
+    $textBox = New-Object System.Windows.Forms.TextBox
+    $textBox.Location = New-Object System.Drawing.Point(100, 20)
+    $textBox.Size = New-Object System.Drawing.Size(180, 20)
+    $textBox.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    $inputForm.Controls.Add($textBox)
+
+    $buttonOK = New-Object System.Windows.Forms.Button
+    $buttonOK.Text = "OK"
+    $buttonOK.Location = New-Object System.Drawing.Point(100, 60)
+    $buttonOK.Size = New-Object System.Drawing.Size(75, 30)
+    $inputForm.Controls.Add($buttonOK)
+
+    $buttonOK.Add_Click({
+        $siteUrl = $textBox.Text
+        $inputForm.Close()
+        Upload-ToSharePoint $outputFile $siteUrl
+        [System.Windows.Forms.MessageBox]::Show("CSV file uploaded to $siteUrl")
+    })
+
+    $inputForm.ShowDialog()
 })
 
 # Exibir o formulário

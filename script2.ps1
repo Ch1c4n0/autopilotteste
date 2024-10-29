@@ -1,6 +1,5 @@
-Install-Module Microsoft.Graph.Beta.DeviceManagement.Enrollment -Force
 Install-Module Microsoft.Graph  -AllowClobber -Force
-Install-Module WindowsAutopilotIntune -Force
+
 
 # Função para conectar ao Microsoft Graph
 function Connect-MgGraphWithScopes {
@@ -21,12 +20,15 @@ function Get-WindowsAutopilotInfoWithGroupTag($groupTag) {
     get-windowsautopilotinfo -Online -GroupTag $groupTag
 }
 
+# Instalar o módulo Microsoft.Graph em um segundo cmd e mostrar o log
+Start-Process cmd.exe -ArgumentList "/c Install-Module Microsoft.Graph -AllowClobber -Force & pause" -NoNewWindow
+
 # Criar a interface gráfica
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "Microsoft Graph Login"
+$form.Text = "Autopilot"
 $form.Size = New-Object System.Drawing.Size(400, 300)
 
 $buttonLogin = New-Object System.Windows.Forms.Button
@@ -36,9 +38,9 @@ $buttonLogin.Size = New-Object System.Drawing.Size(100, 30)
 $form.Controls.Add($buttonLogin)
 
 $buttonAutopilotGroupTag = New-Object System.Windows.Forms.Button
-$buttonAutopilotGroupTag.Text = "Autopilot GroupTag"
-$buttonAutopilotGroupTag.Location = New-Object System.Drawing.Point(150, 100)
-$buttonAutopilotGroupTag.Size = New-Object System.Drawing.Size(150, 30)
+$buttonAutopilotGroupTag.Text = "Autopilot Online With Group Tag"
+$buttonAutopilotGroupTag.Location = New-Object System.Drawing.Point(100, 100)
+$buttonAutopilotGroupTag.Size = New-Object System.Drawing.Size(200, 30)
 $buttonAutopilotGroupTag.Enabled = $false
 $form.Controls.Add($buttonAutopilotGroupTag)
 
@@ -49,14 +51,25 @@ $textBoxProfiles.Location = New-Object System.Drawing.Point(50, 150)
 $textBoxProfiles.Size = New-Object System.Drawing.Size(300, 100)
 $form.Controls.Add($textBoxProfiles)
 
+$labelStatus = New-Object System.Windows.Forms.Label
+$labelStatus.Location = New-Object System.Drawing.Point(150, 20)
+$labelStatus.Size = New-Object System.Drawing.Size(100, 20)
+$form.Controls.Add($labelStatus)
+
 # Evento de clique do botão de login
 $buttonLogin.Add_Click({
-    Connect-MgGraphWithScopes
-    $buttonAutopilotGroupTag.Enabled = $true
-    [System.Windows.Forms.MessageBox]::Show("Login successful!")
+    try {
+        Connect-MgGraphWithScopes
+        $buttonAutopilotGroupTag.Enabled = $true
+        $labelStatus.Text = "SUCCESS"
+        $labelStatus.ForeColor = [System.Drawing.Color]::Green
+    } catch {
+        $labelStatus.Text = "FAIL"
+        $labelStatus.ForeColor = [System.Drawing.Color]::Red
+    }
 })
 
-# Evento de clique do botão Autopilot GroupTag
+# Evento de clique do botão Autopilot Online With Group Tag
 $buttonAutopilotGroupTag.Add_Click({
     $inputForm = New-Object System.Windows.Forms.Form
     $inputForm.Text = "Enter Group Tag"
@@ -70,6 +83,7 @@ $buttonAutopilotGroupTag.Add_Click({
     $textBox = New-Object System.Windows.Forms.TextBox
     $textBox.Location = New-Object System.Drawing.Point(80, 20)
     $textBox.Size = New-Object System.Drawing.Size(200, 20)
+    $textBox.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
     $inputForm.Controls.Add($textBox)
 
     $buttonOK = New-Object System.Windows.Forms.Button

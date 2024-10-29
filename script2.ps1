@@ -126,7 +126,7 @@ $buttonAutopilotGroupTag.Add_Click({
 # Evento de clique do botão Windows Autopilot CSV
 $buttonAutopilotCSV.Add_Click({
     Get-WindowsAutopilotInfoCSV
-    [System.Windows.Forms.MessageBox]::Show("CSV file created at C:\id\deviceid.csv")
+    [System.Windows.Forms.MessageBox]::Show("CSV file created at C:\deviceid.csv")
 })
 
 # Exibir o formulário

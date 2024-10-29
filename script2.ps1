@@ -81,7 +81,7 @@ $buttonAutopilotGroupTag.Add_Click({
         $groupTag = $textBox.Text
         $inputForm.Close()
         $result = Get-WindowsAutopilotInfoWithGroupTag $groupTag
-        $textBoxProfiles.Text = $result | Out-String
+        [System.Windows.Forms.MessageBox]::Show("Autopilot information retrieved successfully.")
     })
 
     $inputForm.ShowDialog()

@@ -1,7 +1,3 @@
-# Função para conectar ao Microsoft Graph
-function Connect-MgGraphWithScopes {
-    Connect-MgGraph -Scopes "User.Read.All", "Group.ReadWrite.All", "Directory.ReadWrite.All", "DeviceManagementManagedDevices.ReadWrite.All", "DeviceManagementConfiguration.ReadWrite.All", "DeviceManagementServiceConfig.ReadWrite.All", "DeviceManagementApps.ReadWrite.All"
-}
 
 # Função para obter perfis de implantação do Windows Autopilot
 function Get-AutopilotProfiles {

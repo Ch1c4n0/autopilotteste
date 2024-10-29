@@ -1,10 +1,3 @@
-
-# Função para obter perfis de implantação do Windows Autopilot
-function Get-AutopilotProfiles {
-    $profiles = Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile
-    return $profiles
-}
-
 # Função para obter informações do Windows Autopilot com GroupTag
 function Get-WindowsAutopilotInfoWithGroupTag($groupTag) {
     Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force

@@ -21,7 +21,10 @@ function Get-WindowsAutopilotInfoWithGroupTag($groupTag) {
 function Get-WindowsAutopilotInfoCSV {
     Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
     Install-Script -Name Get-WindowsAutoPilotInfo -Force
-    Get-WindowsAutoPilotInfo.ps1 -OutputFile C:\deviceid.csv
+    $serialNumber = (Get-WmiObject -Class Win32_BIOS).SerialNumber
+    $outputFile = "C:\$serialNumber.csv"
+    Get-WindowsAutoPilotInfo.ps1 -OutputFile $outputFile
+    return $outputFile
 }
 
 # Criar a interface gráfica
@@ -125,8 +128,8 @@ $buttonAutopilotGroupTag.Add_Click({
 
 # Evento de clique do botão Windows Autopilot CSV
 $buttonAutopilotCSV.Add_Click({
-    Get-WindowsAutopilotInfoCSV
-    [System.Windows.Forms.MessageBox]::Show("CSV file created at C:\deviceid.csv")
+    $outputFile = Get-WindowsAutopilotInfoCSV
+    [System.Windows.Forms.MessageBox]::Show("CSV file created at $outputFile")
 })
 
 # Exibir o formulário

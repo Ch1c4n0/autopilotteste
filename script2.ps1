@@ -1,6 +1,3 @@
-Install-Module Microsoft.Graph.Beta.DeviceManagement.Enrollment -Force
-Install-Module WindowsAutopilotIntune -Force
-
 # Função para conectar ao Microsoft Graph
 function Connect-MgGraphWithScopes {
     Connect-MgGraph -Scopes "User.Read.All", "Group.ReadWrite.All", "Directory.ReadWrite.All", "DeviceManagementManagedDevices.ReadWrite.All", "DeviceManagementConfiguration.ReadWrite.All", "DeviceManagementServiceConfig.ReadWrite.All", "DeviceManagementApps.ReadWrite.All"

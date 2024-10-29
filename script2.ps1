@@ -40,37 +40,47 @@ $form.Text = "Autopilot - Marcelo Goncalves v1.0 - Intune Lovers!"
 $form.Size = New-Object System.Drawing.Size(500, 500)
 $form.BackColor = [System.Drawing.Color]::Black
 
+# Função para centralizar os botões
+function CenterControl($control, $form) {
+    $control.Location = New-Object System.Drawing.Point(($form.ClientSize.Width - $control.Width) / 2, $control.Location.Y)
+}
+
 $buttonInstallGraph = New-Object System.Windows.Forms.Button
 $buttonInstallGraph.Text = "Install Microsoft Graph"
 $buttonInstallGraph.Size = New-Object System.Drawing.Size(200, 30)
-$buttonInstallGraph.Location = New-Object System.Drawing.Point(($form.ClientSize.Width - $buttonInstallGraph.Width) / 2, 50)
+$buttonInstallGraph.Location = New-Object System.Drawing.Point(0, 50)
 $buttonInstallGraph.BackColor = [System.Drawing.Color]::Yellow
 $form.Controls.Add($buttonInstallGraph)
+CenterControl $buttonInstallGraph $form
 
 $buttonLogin = New-Object System.Windows.Forms.Button
 $buttonLogin.Text = "Login"
 $buttonLogin.Size = New-Object System.Drawing.Size(100, 30)
-$buttonLogin.Location = New-Object System.Drawing.Point(($form.ClientSize.Width - $buttonLogin.Width) / 2, 100)
+$buttonLogin.Location = New-Object System.Drawing.Point(0, 100)
 $form.Controls.Add($buttonLogin)
+CenterControl $buttonLogin $form
 
 $buttonAutopilotGroupTag = New-Object System.Windows.Forms.Button
 $buttonAutopilotGroupTag.Text = "Autopilot Online With Group Tag"
 $buttonAutopilotGroupTag.Size = New-Object System.Drawing.Size(200, 30)
-$buttonAutopilotGroupTag.Location = New-Object System.Drawing.Point(($form.ClientSize.Width - $buttonAutopilotGroupTag.Width) / 2, 150)
+$buttonAutopilotGroupTag.Location = New-Object System.Drawing.Point(0, 150)
 $buttonAutopilotGroupTag.Enabled = $false
 $form.Controls.Add($buttonAutopilotGroupTag)
+CenterControl $buttonAutopilotGroupTag $form
 
 $buttonAutopilotCSV = New-Object System.Windows.Forms.Button
 $buttonAutopilotCSV.Text = "Windows Autopilot CSV"
 $buttonAutopilotCSV.Size = New-Object System.Drawing.Size(200, 30)
-$buttonAutopilotCSV.Location = New-Object System.Drawing.Point(($form.ClientSize.Width - $buttonAutopilotCSV.Width) / 2, 200)
+$buttonAutopilotCSV.Location = New-Object System.Drawing.Point(0, 200)
 $buttonAutopilotCSV.Enabled = $false
 $form.Controls.Add($buttonAutopilotCSV)
+CenterControl $buttonAutopilotCSV $form
 
 $labelStatus = New-Object System.Windows.Forms.Label
-$labelStatus.Location = New-Object System.Drawing.Point(($form.ClientSize.Width - 100) / 2, 20)
+$labelStatus.Location = New-Object System.Drawing.Point(0, 20)
 $labelStatus.Size = New-Object System.Drawing.Size(100, 20)
 $form.Controls.Add($labelStatus)
+CenterControl $labelStatus $form
 
 # Evento de clique do botão Install Microsoft Graph
 $buttonInstallGraph.Add_Click({
@@ -151,24 +161,4 @@ $buttonAutopilotGroupTag.Add_Click({
     $buttonOK = New-Object System.Windows.Forms.Button
     $buttonOK.Text = "OK"
     $buttonOK.Location = New-Object System.Drawing.Point(100, 60)
-    $buttonOK.Size = New-Object System.Drawing.Size(75, 30)
-    $inputForm.Controls.Add($buttonOK)
-
-    $buttonOK.Add_Click({
-        $groupTag = $textBox.Text
-        $inputForm.Close()
-        $result = Get-WindowsAutopilotInfoWithGroupTag $groupTag
-        $textBoxProfiles.Text = $result | Out-String
-    })
-
-    $inputForm.ShowDialog()
-})
-
-# Evento de clique do botão Windows Autopilot CSV
-$buttonAutopilotCSV.Add_Click({
-    $outputFile = Get-WindowsAutopilotInfoCSV
-    [System.Windows.Forms.MessageBox]::Show("CSV file created at $outputFile")
-})
-
-# Exibir o formulário
-[void]$form.ShowDialog()
+    $buttonOK.Size = New-Object

@@ -37,7 +37,7 @@ Add-Type -AssemblyName System.Drawing
 
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Autopilot - Marcelo Goncalves v1.0 - Intune Lovers!"
-$form.Size = New-Object System.Drawing.Size(500, 500)
+$form.Size = New-Object System.Drawing.Size(400, 400)
 $form.BackColor = [System.Drawing.Color]::Black
 
 # Função para centralizar os botões
@@ -96,10 +96,27 @@ $buttonInstallGraph.Add_Click({
 
     $installForm.Show()
 
-    Start-Process powershell -ArgumentList "Install-Module Microsoft.Graph -AllowClobber -Force" -Wait
+    try {
+        Start-Process powershell -ArgumentList "Install-Module Microsoft.Graph -AllowClobber -Force" -Wait
+        $installForm.Close()
+        [System.Windows.Forms.MessageBox]::Show("Microsoft Graph installed successfully!", "Installation Complete", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    } catch {
+        $installForm.Close()
+        $failInstallForm = New-Object System.Windows.Forms.Form
+        $failInstallForm.Text = "Installation Status"
+        $failInstallForm.Size = New-Object System.Drawing.Size(300, 100)
+        $failInstallForm.BackColor = [System.Drawing.Color]::Red
 
-    $installForm.Close()
-    [System.Windows.Forms.MessageBox]::Show("Microsoft Graph installed successfully!", "Installation Complete", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        $labelFailInstall = New-Object System.Windows.Forms.Label
+        $labelFailInstall.Text = "FAIL INSTALL"
+        $labelFailInstall.Font = New-Object System.Drawing.Font("Arial", 14)
+        $labelFailInstall.AutoSize = $true
+        $labelFailInstall.Location = New-Object System.Drawing.Point(($failInstallForm.ClientSize.Width - $labelFailInstall.Width) / 2, ($failInstallForm.ClientSize.Height - $labelFailInstall.Height) / 2)
+        $labelFailInstall.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+        $failInstallForm.Controls.Add($labelFailInstall)
+
+        $failInstallForm.ShowDialog()
+    }
 })
 
 # Evento de clique do botão de login
@@ -161,4 +178,24 @@ $buttonAutopilotGroupTag.Add_Click({
     $buttonOK = New-Object System.Windows.Forms.Button
     $buttonOK.Text = "OK"
     $buttonOK.Location = New-Object System.Drawing.Point(100, 60)
-    $buttonOK.Size = New-Object
+    $buttonOK.Size = New-Object System.Drawing.Size(75, 30)
+    $inputForm.Controls.Add($buttonOK)
+
+    $buttonOK.Add_Click({
+        $groupTag = $textBox.Text
+        $inputForm.Close()
+        $result = Get-WindowsAutopilotInfoWithGroupTag $groupTag
+        $textBoxProfiles.Text = $result | Out-String
+    })
+
+    $inputForm.ShowDialog()
+})
+
+# Evento de clique do botão Windows Autopilot CSV
+$buttonAutopilotCSV.Add_Click({
+    $outputFile = Get-WindowsAutopilotInfoCSV
+    [System.Windows.Forms.MessageBox]::Show("CSV file created at $outputFile")
+})
+
+# Exibir o formulário
+[void]$form.ShowDialog()

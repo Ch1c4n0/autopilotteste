@@ -1,5 +1,5 @@
-Install-Module Microsoft.Graph  -AllowClobber -Force
-
+Install-Module Microsoft.Graph.Beta.DeviceManagement.Enrollment -Force
+Install-Module WindowsAutopilotIntune -Force
 
 # Função para conectar ao Microsoft Graph
 function Connect-MgGraphWithScopes {
@@ -20,8 +20,12 @@ function Get-WindowsAutopilotInfoWithGroupTag($groupTag) {
     get-windowsautopilotinfo -Online -GroupTag $groupTag
 }
 
-# Instalar o módulo Microsoft.Graph em um segundo cmd e mostrar o log
-Start-Process cmd.exe -ArgumentList "/c Install-Module Microsoft.Graph -AllowClobber -Force & pause" -NoNewWindow
+# Função para obter informações do Windows Autopilot e salvar em CSV
+function Get-WindowsAutopilotInfoCSV {
+    Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
+    Install-Script -Name Get-WindowsAutoPilotInfo -Force
+    Get-WindowsAutoPilotInfo.ps1 -OutputFile C:\id\deviceid.csv
+}
 
 # Criar a interface gráfica
 Add-Type -AssemblyName System.Windows.Forms
@@ -29,38 +33,58 @@ Add-Type -AssemblyName System.Drawing
 
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Autopilot"
-$form.Size = New-Object System.Drawing.Size(400, 300)
+$form.Size = New-Object System.Drawing.Size(400, 400)
+
+$buttonInstallGraph = New-Object System.Windows.Forms.Button
+$buttonInstallGraph.Text = "Install Microsoft Graph"
+$buttonInstallGraph.Location = New-Object System.Drawing.Point(100, 20)
+$buttonInstallGraph.Size = New-Object System.Drawing.Size(200, 30)
+$buttonInstallGraph.BackColor = [System.Drawing.Color]::Yellow
+$form.Controls.Add($buttonInstallGraph)
 
 $buttonLogin = New-Object System.Windows.Forms.Button
 $buttonLogin.Text = "Login"
-$buttonLogin.Location = New-Object System.Drawing.Point(150, 50)
+$buttonLogin.Location = New-Object System.Drawing.Point(150, 70)
 $buttonLogin.Size = New-Object System.Drawing.Size(100, 30)
 $form.Controls.Add($buttonLogin)
 
 $buttonAutopilotGroupTag = New-Object System.Windows.Forms.Button
 $buttonAutopilotGroupTag.Text = "Autopilot Online With Group Tag"
-$buttonAutopilotGroupTag.Location = New-Object System.Drawing.Point(100, 100)
+$buttonAutopilotGroupTag.Location = New-Object System.Drawing.Point(100, 120)
 $buttonAutopilotGroupTag.Size = New-Object System.Drawing.Size(200, 30)
 $buttonAutopilotGroupTag.Enabled = $false
 $form.Controls.Add($buttonAutopilotGroupTag)
 
+$buttonAutopilotCSV = New-Object System.Windows.Forms.Button
+$buttonAutopilotCSV.Text = "Windows Autopilot CSV"
+$buttonAutopilotCSV.Location = New-Object System.Drawing.Point(100, 170)
+$buttonAutopilotCSV.Size = New-Object System.Drawing.Size(200, 30)
+$buttonAutopilotCSV.Enabled = $false
+$form.Controls.Add($buttonAutopilotCSV)
+
 $textBoxProfiles = New-Object System.Windows.Forms.TextBox
 $textBoxProfiles.Multiline = $true
 $textBoxProfiles.ScrollBars = [System.Windows.Forms.ScrollBars]::Vertical
-$textBoxProfiles.Location = New-Object System.Drawing.Point(50, 150)
+$textBoxProfiles.Location = New-Object System.Drawing.Point(50, 220)
 $textBoxProfiles.Size = New-Object System.Drawing.Size(300, 100)
 $form.Controls.Add($textBoxProfiles)
 
 $labelStatus = New-Object System.Windows.Forms.Label
-$labelStatus.Location = New-Object System.Drawing.Point(150, 20)
+$labelStatus.Location = New-Object System.Drawing.Point(150, 50)
 $labelStatus.Size = New-Object System.Drawing.Size(100, 20)
 $form.Controls.Add($labelStatus)
+
+# Evento de clique do botão Install Microsoft Graph
+$buttonInstallGraph.Add_Click({
+    Start-Process powershell -ArgumentList "Install-Module Microsoft.Graph -AllowClobber -Force" -NoNewWindow
+})
 
 # Evento de clique do botão de login
 $buttonLogin.Add_Click({
     try {
         Connect-MgGraphWithScopes
         $buttonAutopilotGroupTag.Enabled = $true
+        $buttonAutopilotCSV.Enabled = $true
         $labelStatus.Text = "SUCCESS"
         $labelStatus.ForeColor = [System.Drawing.Color]::Green
     } catch {
@@ -100,6 +124,12 @@ $buttonAutopilotGroupTag.Add_Click({
     })
 
     $inputForm.ShowDialog()
+})
+
+# Evento de clique do botão Windows Autopilot CSV
+$buttonAutopilotCSV.Add_Click({
+    Get-WindowsAutopilotInfoCSV
+    [System.Windows.Forms.MessageBox]::Show("CSV file created at C:\id\deviceid.csv")
 })
 
 # Exibir o formulário

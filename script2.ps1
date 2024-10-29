@@ -22,7 +22,11 @@ function Get-WindowsAutopilotInfoCSV {
     Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
     Install-Script -Name Get-WindowsAutoPilotInfo -Force
     $serialNumber = (Get-WmiObject -Class Win32_BIOS).SerialNumber
-    $outputFile = "C:\$serialNumber.csv"
+    $folderPath = "C:\AUTOPILOT"
+    if (-not (Test-Path -Path $folderPath)) {
+        New-Item -ItemType Directory -Path $folderPath
+    }
+    $outputFile = "$folderPath\$serialNumber.csv"
     Get-WindowsAutoPilotInfo.ps1 -OutputFile $outputFile
     return $outputFile
 }
@@ -133,8 +137,9 @@ $buttonAutopilotGroupTag.Add_Click({
     $inputForm.Controls.Add($label)
 
     $textBox = New-Object System.Windows.Forms.TextBox
-    $textBox.Location = New-Object System.Drawing.Point(80, 20)
+    $textBox.Location = New-Object System.Drawing.Point(50, 20)
     $textBox.Size = New-Object System.Drawing.Size(200, 20)
+    $textBox.TextAlign = 'Center'
     $textBox.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
     $inputForm.Controls.Add($textBox)
 

@@ -21,7 +21,7 @@ function Get-WindowsAutopilotInfoWithGroupTag($groupTag) {
 function Get-WindowsAutopilotInfoCSV {
     Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
     Install-Script -Name Get-WindowsAutoPilotInfo -Force
-    Get-WindowsAutoPilotInfo.ps1 -OutputFile C:\id\deviceid.csv
+    Get-WindowsAutoPilotInfo.ps1 -OutputFile C:\deviceid.csv
 }
 
 # Criar a interface gráfica
